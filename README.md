@@ -1,2 +1,2 @@
 # pg-go
-golang sdk for payment gateway
+golang sdk for gmo payment gateway
