@@ -7,6 +7,8 @@ const (
 	APISandBoxBaseURL = "https://pt01.mul-pay.jp/payment/%s.idPass"
 	// APILiveBaseURL points to production API
 	APILiveBaseURL = "https://p01.mul-pay.jp/payment/%s.idPass"
+
+	Deleted = "DeleteFlag"
 )
 
 type (
@@ -38,13 +40,25 @@ type (
 	CreditCard struct {
 		Member         *Member `json:"id"`
 		SequenceNumber int     `json:"sequence_number"`
-		Default        bool    `json:"default"`
-		Name           string  `json:"name"`
-		Number         string  `json:"number"`
-		Expire         string  `json:"expire"`
-		HolderName     string  `json:"holder_name"`
-		Token          string  `json:"token,omitempty"`
-		Deleted        bool    `json:"deleted"`
+		SequenceMode   int
+		Default        bool   `json:"default"`
+		Name           string `json:"name"`
+		Number         string `json:"number"`
+		Expire         string `json:"expire"`
+		HolderName     string `json:"holder_name"`
+		Token          string `json:"token,omitempty"`
+		Deleted        bool   `json:"deleted"`
+	}
+
+	// CreditCardResponse represents response of card request
+	CreditCardResponse struct {
+		SequenceNumber int    `json:"sequence_number"`
+		Default        bool   `json:"default"`
+		Name           string `json:"name"`
+		Number         string `json:"number"`
+		Expire         string `json:"expire"`
+		HolderName     string `json:"holder_name"`
+		Deleted        bool   `json:"deleted"`
 	}
 
 	// CreditCards represents credit card list
