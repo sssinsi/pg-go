@@ -4,19 +4,20 @@ import "net/http"
 
 const (
 	// APISandBoxBaseURL points to test API
-	APISandBoxBaseURL = "https://pt01.mul-pay.jp/payment/%1$s.idPass"
+	APISandBoxBaseURL = "https://pt01.mul-pay.jp/payment/%s.idPass"
 	// APILiveBaseURL points to production API
-	APILiveBaseURL = "https://p01.mul-pay.jp/payment/%1$s.idPass"
+	APILiveBaseURL = "https://p01.mul-pay.jp/payment/%s.idPass"
 )
 
 type (
 	// Client represents payment gateway API client
 	Client struct {
-		client   *http.Client
-		SiteID   string
-		SitePass string
-		ShopID   string
-		ShopPass string
+		client     *http.Client
+		SiteID     string
+		SitePass   string
+		ShopID     string
+		ShopPass   string
+		APIBaseURL string
 	}
 
 	// Member represents member of payment service
@@ -24,6 +25,13 @@ type (
 		ID      string `json:"id"`
 		Name    string `json:"name"`
 		Deleted bool   `json:"deleted"`
+	}
+
+	// MemberResponse represents response of member request
+	MemberResponse struct {
+		ID      string `json:"id"`
+		Name    string `json:"name"`
+		Deleted int    `json:"deleted"`
 	}
 
 	// CreditCard represents credit card for member
