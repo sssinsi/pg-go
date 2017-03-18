@@ -96,17 +96,11 @@ type (
 		CheckString     string
 	}
 
-	// CreditCardResponse represents response of credit card charge request
-	CreditCardChargeResponse struct {
-		*EntryResponse
-		*ExecuteResponse
-	}
-
 	// Charge represents payment with sequence number of credit card
 	Charge struct {
-		CreditCard
-		Entry
-		EntryResponse
+		*CreditCard
+		*Entry
+		*EntryResponse
 	}
 
 	// ChargeResponse represents response of charge
@@ -124,8 +118,10 @@ type (
 		Token      string
 	}
 
-	// CardChargeResponse represents response of card charge
+	// CardChargeResponse represents response of credit card charge request
 	CardChargeResponse struct {
+		*EntryResponse
+		*ExecuteResponse
 	}
 
 	// CardRecurring represents recurring object of member

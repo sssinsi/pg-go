@@ -79,22 +79,22 @@ func (c *Client) SearchCard(card *CreditCard) (*CreditCardResponse, *ErrorRespon
 	return cr, nil
 }
 
-// CreditCardCharge store charge by credit card.
-func (c *Client) CreditCardCharge(card *CreditCard, amount, tax int) (*CreditCardChargeResponse, *ErrorResponses) {
+// CardCharge store charge by credit card.
+func (c *Client) CardCharge(card *CreditCard, amount, tax int) (*CardChargeResponse, *ErrorResponses) {
 	e := NewEntry("", "1", amount, tax)
 	//entry
 	er, errors := c.entry(e)
 	if errors != nil && errors.Count > 0 {
 		return nil, errors
 	}
-
+	charge := &Charge{card, e, er}
 	//exec
-	exr, errors := c.execute(card, e, er)
+	exr, errors := c.execute(charge)
 	if errors != nil && errors.Count > 0 {
 		return nil, errors
 	}
 
-	return &CreditCardChargeResponse{er, exr}, nil
+	return &CardChargeResponse{er, exr}, nil
 }
 
 func (c *Client) entry(e *Entry) (*EntryResponse, *ErrorResponses) {
@@ -112,15 +112,13 @@ func (c *Client) entry(e *Entry) (*EntryResponse, *ErrorResponses) {
 	return er, nil
 }
 
-func (c *Client) execute(card *CreditCard, e *Entry, er *EntryResponse) (*ExecuteResponse, *ErrorResponses) {
-	vs := url.Values{}
-	vs.Add(SiteID, c.SiteID)
-	vs.Add(SitePass, c.SitePass)
-	vs.Add(MemberID, card.Member.ID)
-	vs.Add(SequenceNumber, strconv.Itoa(card.SequenceNumber))
-	vs.Add(OrderID, e.OrderID)
-	vs.Add(AccessID, er.AccessID)
-	vs.Add(AccessPass, er.AccessPass)
+func (c *Client) execute(charge *Charge) (*ExecuteResponse, *ErrorResponses) {
+	vs := c.ToValues()
+	vs.Add(MemberID, charge.CreditCard.Member.ID)
+	vs.Add(SequenceNumber, strconv.Itoa(charge.CreditCard.SequenceNumber))
+	vs.Add(OrderID, charge.Entry.OrderID)
+	vs.Add(AccessID, charge.EntryResponse.AccessID)
+	vs.Add(AccessPass, charge.EntryResponse.AccessPass)
 	vs.Add("Method", "1")
 
 	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "ExecTran"), strings.NewReader(vs.Encode()))
