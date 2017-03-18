@@ -1,8 +1,10 @@
 package pg
 
 import (
+	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -43,25 +45,93 @@ func (c *CreditCard) ToValues() url.Values {
 	return vs
 }
 
-func ConvertToCreditCardResponse(s string) (*CreditCardResponse, *ErrorResponses) {
-	vs, err := url.ParseQuery(s)
+// SaveCard store credit card to member
+func (c *Client) SaveCard(card *CreditCard) (*CreditCardResponse, *ErrorResponses) {
+	v := c.mergeValues(card.ToValues())
+	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "SaveCard"), strings.NewReader(v.Encode()))
+
 	if err != nil {
 		return nil, nil
 	}
-	cr := &CreditCardResponse{}
-	ers := ConvertToErrorResponses(vs)
 
-	if vs.Get(SequenceNumber) != "" {
-		d := vs.Get(Default) == "1"
-		del := vs.Get(Deleted) == "1"
-		cr.SequenceNumber, _ = strconv.Atoi(vs.Get(SequenceNumber))
-		cr.Default = d
-		cr.Name = vs.Get(Name)
-		cr.Number = vs.Get(Number)
-		cr.Expire = vs.Get(Expire)
-		cr.HolderName = vs.Get(HolderName)
-		cr.Deleted = del
+	cr, errors := ConvertToCreditCardResponse(bodyString)
+	if errors != nil && errors.Count > 0 {
+		return nil, errors
 	}
 
-	return cr, ers
+	return cr, nil
+}
+
+// SearchCard return single credit card response
+func (c *Client) SearchCard(card *CreditCard) (*CreditCardResponse, *ErrorResponses) {
+	v := c.mergeValues(card.ToValues())
+	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "SearchCard"), strings.NewReader(v.Encode()))
+
+	if err != nil {
+		return nil, nil
+	}
+
+	cr, errors := ConvertToCreditCardResponse(bodyString)
+	if errors != nil && errors.Count > 0 {
+		return nil, errors
+	}
+
+	return cr, nil
+}
+
+// CreditCardCharge store charge by credit card.
+func (c *Client) CreditCardCharge(card *CreditCard, amount, tax int) (*CreditCardChargeResponse, *ErrorResponses) {
+	e := NewEntry("", "1", amount, tax)
+	//entry
+	er, errors := c.entry(e)
+	if errors != nil && errors.Count > 0 {
+		return nil, errors
+	}
+
+	//exec
+	exr, errors := c.execute(card, e, er)
+	if errors != nil && errors.Count > 0 {
+		return nil, errors
+	}
+
+	return &CreditCardChargeResponse{er, exr}, nil
+}
+
+func (c *Client) entry(e *Entry) (*EntryResponse, *ErrorResponses) {
+	vs := c.mergeValues(e.ToValues())
+	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "EntryTran"), strings.NewReader(vs.Encode()))
+	if err != nil {
+		return nil, nil
+	}
+
+	er, errors := ConvertToEntryResponse(bodyString)
+	if errors != nil && errors.Count > 0 {
+		return nil, errors
+	}
+
+	return er, nil
+}
+
+func (c *Client) execute(card *CreditCard, e *Entry, er *EntryResponse) (*ExecuteResponse, *ErrorResponses) {
+	vs := url.Values{}
+	vs.Add(SiteID, c.SiteID)
+	vs.Add(SitePass, c.SitePass)
+	vs.Add(MemberID, card.Member.ID)
+	vs.Add(SequenceNumber, strconv.Itoa(card.SequenceNumber))
+	vs.Add(OrderID, e.OrderID)
+	vs.Add(AccessID, er.AccessID)
+	vs.Add(AccessPass, er.AccessPass)
+	vs.Add("Method", "1")
+
+	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "ExecTran"), strings.NewReader(vs.Encode()))
+	if err != nil {
+		return nil, nil
+	}
+
+	exr, errors := ConvertToExecuteResponse(bodyString)
+	if errors != nil && errors.Count > 0 {
+		return nil, errors
+	}
+
+	return exr, nil
 }

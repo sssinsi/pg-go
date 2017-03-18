@@ -2,11 +2,9 @@ package pg
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 )
 
@@ -83,130 +81,4 @@ func (c *Client) post(url string, reader *strings.Reader) (string, error) {
 	bodyString := string(bodyBytes)
 
 	return bodyString, nil
-}
-
-// SaveMember store member account
-func (c *Client) SaveMember(m Member) (*MemberResponse, *ErrorResponses) {
-	v := c.mergeValues(m.ToValues())
-	resp, err := c.post(
-		fmt.Sprintf(c.APIBaseURL, "SaveMember"),
-		strings.NewReader(v.Encode()),
-	)
-
-	if err != nil {
-		return nil, nil
-	}
-
-	mr, errors := ConvertToMemberResponse(resp)
-	if errors != nil && errors.Count > 0 {
-		return nil, errors
-	}
-	return mr, nil
-}
-
-// SearchMember search member information from payment gateway
-func (c *Client) SearchMember(m Member) (*MemberResponse, *ErrorResponses) {
-	v := c.mergeValues(m.ToValues())
-	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "SearchMember"), strings.NewReader(v.Encode()))
-
-	if err != nil {
-		return nil, nil
-	}
-
-	mr, errors := ConvertToMemberResponse(bodyString)
-	if errors != nil && errors.Count > 0 {
-		return nil, errors
-	}
-	return mr, nil
-}
-
-// SaveCard store credit card to member
-func (c *Client) SaveCard(card *CreditCard) (*CreditCardResponse, *ErrorResponses) {
-	v := c.mergeValues(card.ToValues())
-	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "SaveCard"), strings.NewReader(v.Encode()))
-
-	if err != nil {
-		return nil, nil
-	}
-
-	cr, errors := ConvertToCreditCardResponse(bodyString)
-	if errors != nil && errors.Count > 0 {
-		return nil, errors
-	}
-
-	return cr, nil
-}
-
-// SearchCard return single credit card response
-func (c *Client) SearchCard(card *CreditCard) (*CreditCardResponse, *ErrorResponses) {
-	v := c.mergeValues(card.ToValues())
-	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "SearchCard"), strings.NewReader(v.Encode()))
-
-	if err != nil {
-		return nil, nil
-	}
-
-	cr, errors := ConvertToCreditCardResponse(bodyString)
-	if errors != nil && errors.Count > 0 {
-		return nil, errors
-	}
-
-	return cr, nil
-}
-
-// CreditCardCharge store charge by credit card.
-func (c *Client) CreditCardCharge(card *CreditCard, amount, tax int) (*CreditCardChargeResponse, *ErrorResponses) {
-	e := NewEntry("", "1", amount, tax)
-	//entry
-	er, errors := c.entry(e)
-	if errors != nil && errors.Count > 0 {
-		return nil, errors
-	}
-
-	//exec
-	exr, errors := c.execute(card, e, er)
-	if errors != nil && errors.Count > 0 {
-		return nil, errors
-	}
-
-	return &CreditCardChargeResponse{er, exr}, nil
-}
-
-func (c *Client) entry(e *Entry) (*EntryResponse, *ErrorResponses) {
-	vs := c.mergeValues(e.ToValues())
-	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "EntryTran"), strings.NewReader(vs.Encode()))
-	if err != nil {
-		return nil, nil
-	}
-
-	er, errors := ConvertToEntryResponse(bodyString)
-	if errors != nil && errors.Count > 0 {
-		return nil, errors
-	}
-
-	return er, nil
-}
-
-func (c *Client) execute(card *CreditCard, e *Entry, er *EntryResponse) (*ExecuteResponse, *ErrorResponses) {
-	vs := url.Values{}
-	vs.Add(SiteID, c.SiteID)
-	vs.Add(SitePass, c.SitePass)
-	vs.Add(MemberID, card.Member.ID)
-	vs.Add(SequenceNumber, strconv.Itoa(card.SequenceNumber))
-	vs.Add(OrderID, e.OrderID)
-	vs.Add(AccessID, er.AccessID)
-	vs.Add(AccessPass, er.AccessPass)
-	vs.Add("Method", "1")
-
-	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "ExecTran"), strings.NewReader(vs.Encode()))
-	if err != nil {
-		return nil, nil
-	}
-
-	exr, errors := ConvertToExecuteResponse(bodyString)
-	if errors != nil && errors.Count > 0 {
-		return nil, errors
-	}
-
-	return er, nil
 }
