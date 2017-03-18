@@ -12,6 +12,8 @@ const (
 	APILiveBaseURL = "https://p01.mul-pay.jp/payment/%s.idPass"
 
 	Deleted = "DeleteFlag"
+	Amount  = "Amount"
+	Tax     = "Tax"
 )
 
 type (
@@ -124,9 +126,10 @@ type (
 		*ExecuteResponse
 	}
 
-	// CardRecurring represents recurring object of member
-	CardRecurring struct {
+	// Recurring represents recurring object of member
+	Recurring struct {
 		ID              string
+		Amount          int
 		Tax             int
 		ChargeDay       string
 		ChargeMonth     string
@@ -138,12 +141,14 @@ type (
 		// Entry
 	}
 
-	// CardRecurringResponse represents response of register card recurring
-	CardRecurringResponse struct {
-		CardRecurring
+	// RecurringResponse represents response of register card recurring
+	RecurringResponse struct {
+		Recurring
 		Member
 		CreditCard
 		NextChargeDate string
+		//Shop
+		//Site
 	}
 
 	// ErrorResponse represents single error response
