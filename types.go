@@ -70,7 +70,7 @@ type (
 	// Entry represents payment transaction
 	Entry struct {
 		OrderID string
-		Job     string
+		JobCode string
 		Amount  int
 		Tax     int
 	}
