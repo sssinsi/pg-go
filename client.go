@@ -2,11 +2,17 @@ package pg
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+)
+
+const (
+	SiteID   = "SiteID"
+	SitePass = "SitePass"
+	ShopID   = "ShopID"
+	ShopPass = "ShopPass"
 )
 
 func NewClient(siteID, sitePass, shopID, shopPass string, sandBox bool) (*Client, error) {
@@ -31,10 +37,10 @@ func NewClient(siteID, sitePass, shopID, shopPass string, sandBox bool) (*Client
 
 func (c *Client) ToValues() url.Values {
 	values := url.Values{}
-	values.Add("SiteID", c.SiteID)
-	values.Add("SitePass", c.SitePass)
-	values.Add("ShopID", c.ShopID)
-	values.Add("ShopPass", c.ShopPass)
+	values.Add(SiteID, c.SiteID)
+	values.Add(SitePass, c.SitePass)
+	values.Add(ShopID, c.ShopID)
+	values.Add(ShopPass, c.ShopPass)
 	return values
 }
 
@@ -75,73 +81,4 @@ func (c *Client) post(url string, reader *strings.Reader) (string, error) {
 	bodyString := string(bodyBytes)
 
 	return bodyString, nil
-}
-
-// SaveMember store member account
-func (c *Client) SaveMember(m Member) (*MemberResponse, *ErrorResponses) {
-	v := c.mergeValues(m.ToValues())
-	resp, err := c.post(
-		fmt.Sprintf(c.APIBaseURL, "SaveMember"),
-		strings.NewReader(v.Encode()),
-	)
-
-	if err != nil {
-		return nil, nil
-	}
-
-	mr, errors := ConvertToMemberResponse(resp)
-	if errors != nil && errors.Count > 0 {
-		return nil, errors
-	}
-	return mr, nil
-}
-
-// SearchMember search member information from payment gateway
-func (c *Client) SearchMember(m Member) (*MemberResponse, *ErrorResponses) {
-	v := c.mergeValues(m.ToValues())
-	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "SearchMember"), strings.NewReader(v.Encode()))
-
-	if err != nil {
-		return nil, nil
-	}
-
-	mr, errors := ConvertToMemberResponse(bodyString)
-	if errors != nil && errors.Count > 0 {
-		return nil, errors
-	}
-	return mr, nil
-}
-
-// SaveCard store credit card to member
-func (c *Client) SaveCard(card *CreditCard) (*CreditCardResponse, *ErrorResponses) {
-	v := c.mergeValues(card.ToValues())
-	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "SaveCard"), strings.NewReader(v.Encode()))
-
-	if err != nil {
-		return nil, nil
-	}
-
-	cr, errors := ConvertToCreditCardResponse(bodyString)
-	if errors != nil && errors.Count > 0 {
-		return nil, errors
-	}
-
-	return cr, nil
-}
-
-// SearchCard return single credit card response
-func (c *Client) SearchCard(card *CreditCard) (*CreditCardResponse, *ErrorResponses) {
-	v := c.mergeValues(card.ToValues())
-	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "SearchCard"), strings.NewReader(v.Encode()))
-
-	if err != nil {
-		return nil, nil
-	}
-
-	cr, errors := ConvertToCreditCardResponse(bodyString)
-	if errors != nil && errors.Count > 0 {
-		return nil, errors
-	}
-
-	return cr, nil
 }
