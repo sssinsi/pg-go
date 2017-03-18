@@ -1,6 +1,9 @@
 package pg
 
-import "net/http"
+import (
+	"net/http"
+	"time"
+)
 
 const (
 	// APISandBoxBaseURL points to test API
@@ -75,10 +78,28 @@ type (
 		Tax     int
 	}
 
-	// EntryResponse represents response of entry transaction
+	// EntryResponse represents response of entry request
 	EntryResponse struct {
 		AccessID   string
 		AccessPass string
+	}
+
+	// ExecuteResponse represents response of execute request
+	ExecuteResponse struct {
+		OrderID         string
+		Forward         string
+		Method          string
+		PayTimes        int
+		Approve         string
+		TransactionID   string
+		TransactionDate *time.Time
+		CheckString     string
+	}
+
+	// CreditCardResponse represents response of credit card charge request
+	CreditCardChargeResponse struct {
+		*EntryResponse
+		*ExecuteResponse
 	}
 
 	// Charge represents payment with sequence number of credit card
