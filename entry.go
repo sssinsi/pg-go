@@ -8,7 +8,6 @@ import (
 const (
 	OrderID = "OrderID"
 	JobCode = "JobCd"
-	Amount  = "Amount"
 )
 
 func NewEntry(orderID, jobCode string, amount, tax int) *Entry {
