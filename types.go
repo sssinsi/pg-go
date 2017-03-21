@@ -38,7 +38,7 @@ type (
 	MemberResponse struct {
 		ID      string `json:"id"`
 		Name    string `json:"name"`
-		Deleted int    `json:"deleted"`
+		Deleted bool   `json:"deleted"`
 	}
 
 	// CreditCard represents credit card for member
