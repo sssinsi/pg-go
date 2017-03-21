@@ -1,7 +1,6 @@
 package pg
 
 import (
-	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
@@ -48,7 +47,7 @@ func (c *CreditCard) ToValues() url.Values {
 // SaveCard store credit card to member
 func (c *Client) SaveCard(card *CreditCard) (*CreditCardResponse, *ErrorResponses) {
 	v := c.mergeValues(card.ToValues())
-	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "SaveCard"), strings.NewReader(v.Encode()))
+	bodyString, err := c.post("SaveCard", strings.NewReader(v.Encode()))
 
 	if err != nil {
 		return nil, nil
@@ -65,7 +64,7 @@ func (c *Client) SaveCard(card *CreditCard) (*CreditCardResponse, *ErrorResponse
 // SearchCard return single credit card response
 func (c *Client) SearchCard(card *CreditCard) (*CreditCardResponse, *ErrorResponses) {
 	v := c.mergeValues(card.ToValues())
-	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "SearchCard"), strings.NewReader(v.Encode()))
+	bodyString, err := c.post("SearchCard", strings.NewReader(v.Encode()))
 
 	if err != nil {
 		return nil, nil
@@ -99,7 +98,7 @@ func (c *Client) CardCharge(card *CreditCard, amount, tax int) (*CardChargeRespo
 
 func (c *Client) entry(e *Entry) (*EntryResponse, *ErrorResponses) {
 	vs := c.mergeValues(e.ToValues())
-	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "EntryTran"), strings.NewReader(vs.Encode()))
+	bodyString, err := c.post("EntryTran", strings.NewReader(vs.Encode()))
 	if err != nil {
 		return nil, nil
 	}
@@ -121,7 +120,7 @@ func (c *Client) execute(charge *Charge) (*ExecuteResponse, *ErrorResponses) {
 	vs.Add(AccessPass, charge.EntryResponse.AccessPass)
 	vs.Add("Method", "1")
 
-	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "ExecTran"), strings.NewReader(vs.Encode()))
+	bodyString, err := c.post("ExecTran", strings.NewReader(vs.Encode()))
 	if err != nil {
 		return nil, nil
 	}

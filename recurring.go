@@ -1,7 +1,6 @@
 package pg
 
 import (
-	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
@@ -33,7 +32,7 @@ func (r *Recurring) ToValues() url.Values {
 // RegistMemberRecurring store recurring object for member
 func (c *Client) RegistMemberRecurring(r *Recurring) (*RecurringResponse, *ErrorResponses) {
 	v := c.mergeValues(r.ToValues())
-	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "RegisterRecurringCredit"), strings.NewReader(v.Encode()))
+	bodyString, err := c.post("RegisterRecurringCredit", strings.NewReader(v.Encode()))
 
 	if err != nil {
 		return nil, nil
