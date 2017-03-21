@@ -20,7 +20,7 @@ func TestConvertToMemberResponse(t *testing.T) {
 	if mr.Name != mName {
 		t.Fatal(fmt.Sprintf("Name should be %s", mName))
 	}
-	if mr.Deleted != mDelete {
+	if mr.Deleted {
 		t.Fatal(fmt.Sprintf("Deleted should be %d", mDelete))
 	}
 }

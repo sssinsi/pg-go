@@ -1,9 +1,6 @@
 package pg
 
-import (
-	"net/url"
-	"strconv"
-)
+import "net/url"
 
 func ConvertToMemberResponse(s string) (*MemberResponse, *ErrorResponses) {
 	vs, err := url.ParseQuery(s)
@@ -14,9 +11,10 @@ func ConvertToMemberResponse(s string) (*MemberResponse, *ErrorResponses) {
 	ers := ConvertToErrorResponses(vs)
 
 	if vs.Get(MemberID) != "" {
+		del := vs.Get(Deleted) == "1"
 		mr.ID = vs.Get(MemberID)
 		mr.Name = vs.Get(MemberName)
-		mr.Deleted, _ = strconv.Atoi(vs.Get(Deleted))
+		mr.Deleted = del
 	}
 
 	return mr, ers
