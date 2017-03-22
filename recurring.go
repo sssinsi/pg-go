@@ -38,7 +38,7 @@ func (c *Client) RegistMemberRecurring(r *Recurring) (*RecurringResponse, *Error
 		return nil, nil
 	}
 
-	rr, errors := ConvertToMemberRrecurring(bodyString)
+	rr, errors := ConvertToMemberRecurringResponse(bodyString)
 
 	if errors != nil && errors.Count > 0 {
 		return nil, errors
