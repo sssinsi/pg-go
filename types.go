@@ -94,7 +94,7 @@ type (
 		PayTimes        int
 		Approve         string
 		TransactionID   string
-		TransactionDate *time.Time
+		TransactionDate time.Time
 		CheckString     string
 	}
 
