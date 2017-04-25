@@ -30,10 +30,33 @@ func (r *Recurring) ToValues() url.Values {
 	return vs
 }
 
-// RegistMemberRecurring store recurring object for member
-func (c *Client) RegistMemberRecurring(r *Recurring) (*RecurringResponse, *ErrorResponses) {
+// RegisterMemberRecurring store recurring object for member
+func (c *Client) RegisterMemberRecurring(r *Recurring) (*RecurringResponse, *ErrorResponses) {
 	v := c.mergeValues(r.ToValues())
 	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "RegisterRecurringCredit"), strings.NewReader(v.Encode()))
+
+	if err != nil {
+		return nil, nil
+	}
+
+	rr, errors := ConvertToMemberRrecurring(bodyString)
+
+	if errors != nil && errors.Count > 0 {
+		return nil, errors
+	}
+
+	return rr, nil
+}
+
+// UnregisterRecurring cancel recurring object
+func (c *Client) UnregisterRecurring(r *Recurring) (*RecurringResponse, *ErrorResponses) {
+	//only ShopID,ShopPass,RecurringID
+	v := url.Values{}
+	v.Add(ShopID, c.ShopID)
+	v.Add(ShopPass, c.ShopPass)
+	v.Add(RecurringID, r.ID)
+
+	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "UnregisterRecurring"), strings.NewReader(v.Encode()))
 
 	if err != nil {
 		return nil, nil
