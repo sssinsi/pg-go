@@ -9,7 +9,7 @@ const (
 	NextChargeDate = "NextChargeDate"
 )
 
-func ConvertToMemberRrecurring(s string) (*RecurringResponse, *ErrorResponses) {
+func ConvertToMemberRecurringResponse(s string) (*RecurringResponse, *ErrorResponses) {
 	vs, err := url.ParseQuery(s)
 	if err != nil {
 		return nil, nil

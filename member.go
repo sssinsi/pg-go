@@ -1,7 +1,6 @@
 package pg
 
 import (
-	"fmt"
 	"net/url"
 	"strings"
 )
@@ -25,7 +24,7 @@ func (m *Member) ToValues() url.Values {
 func (c *Client) SaveMember(m Member) (*MemberResponse, *ErrorResponses) {
 	v := c.mergeValues(m.ToValues())
 	resp, err := c.post(
-		fmt.Sprintf(c.APIBaseURL, "SaveMember"),
+		"SaveMember",
 		strings.NewReader(v.Encode()),
 	)
 
@@ -43,7 +42,7 @@ func (c *Client) SaveMember(m Member) (*MemberResponse, *ErrorResponses) {
 // SearchMember search member information from payment gateway
 func (c *Client) SearchMember(m Member) (*MemberResponse, *ErrorResponses) {
 	v := c.mergeValues(m.ToValues())
-	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "SearchMember"), strings.NewReader(v.Encode()))
+	bodyString, err := c.post("SearchMember", strings.NewReader(v.Encode()))
 
 	if err != nil {
 		return nil, nil

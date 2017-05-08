@@ -2,6 +2,7 @@ package pg
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -54,10 +55,10 @@ func (c *Client) mergeValues(values url.Values) url.Values {
 	return vs
 }
 
-func (c *Client) post(url string, reader *strings.Reader) (string, error) {
+func (c *Client) post(endPointName string, reader *strings.Reader) (string, error) {
 	req, err := http.NewRequest(
 		"POST",
-		url,
+		fmt.Sprintf(c.APIBaseURL, endPointName),
 		reader,
 	)
 	if err != nil {
