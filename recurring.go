@@ -70,3 +70,49 @@ func (c *Client) UnregisterRecurring(r *Recurring) (*RecurringResponse, *ErrorRe
 
 	return rr, nil
 }
+
+// SearchRecurring search recurring object.
+func (c *Client) SearchRecurring(r *Recurring) (*RecurringResponse, *ErrorResponses) {
+	//only ShopID,ShopPass,RecurringID
+	v := url.Values{}
+	v.Add(ShopID, c.ShopID)
+	v.Add(ShopPass, c.ShopPass)
+	v.Add(RecurringID, r.ID)
+
+	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "SearchRecurring"), strings.NewReader(v.Encode()))
+
+	if err != nil {
+		return nil, nil
+	}
+
+	rr, errors := ConvertToMemberRrecurring(bodyString)
+
+	if errors != nil && errors.Count > 0 {
+		return nil, errors
+	}
+
+	return rr, nil
+}
+
+func (c *Client) SearchRecurringResult(r *Recurring) (*RecurringResultResponse, *ErrorResponses) {
+	//only ShopID,ShopPass,RecurringID
+	v := url.Values{}
+	v.Add(ShopID, c.ShopID)
+	v.Add(ShopPass, c.ShopPass)
+	v.Add(RecurringID, r.ID)
+
+	bodyString, err := c.post(fmt.Sprintf(c.APIBaseURL, "SearchRecurringResult"), strings.NewReader(v.Encode()))
+
+	if err != nil {
+		return nil, nil
+	}
+
+	//fixme
+	rr, errors := ConvertToMemberRrecurring(bodyString)
+
+	if errors != nil && errors.Count > 0 {
+		return nil, errors
+	}
+
+	return rr, nil
+}
